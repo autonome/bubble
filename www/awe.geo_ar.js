@@ -131,8 +131,7 @@
 				}
 			});
 			
-			awe.events.add([
-				{
+			awe.events.add([{
 					id: 'resize_screen',
 					device_types: {
 						pc: 1,

@@ -115,13 +115,13 @@ function onAweReady() {
   }
 
   window.addEventListener('devicemotion', function(e) {
-    console.log('motion')
+    //console.log('motion')
   }, false);
 
   // Our own orientation listener
   var pov = { x: 0, y: 0, z: 0 };
   window.addEventListener('deviceorientation', function(e) {
-    console.log(orientation, e);
+    //console.log(orientation, e);
     var alpha = e.alpha,
         beta = e.beta,
         gamma = e.gamma,
@@ -155,13 +155,24 @@ function onAweReady() {
   var hammertime = new Hammer(addBtn);
   hammertime.on('tap', newMessage);
   
-  function newMessage(e) {
-    var povEl = document.querySelector('#pov');
+  var numTests = 10;
+  for (var i = 0; i < numTests; i++) {
+    newMessage({
+      pos: {
+        x: randomIntInRange(-100, 100),
+        y: randomIntInRange(-100, 100),
+        z: 200,
+      }
+    });
+  }
+
+  function newMessage(opts) {
     var id = 'msg' + Date.now();
-    awe.pois.add({ id: id, position: { x: 0, y: 0, z:200 } });
+    var msgPos = opts.pov || { x: 0, y: 0, z: 200 }; //pov;
+    awe.pois.add({ id: id, position: msgPos });
+
     //alert('adding new msg at ' + pov.x + ', ' + pov.y)
-    //awe.pois.add({ id: id, position: { x: pov.x, y: pov.y, z:200 } });
-    //awe.pois.add({ id: id, position: { x: 175, y: 118, z:200 } });
+
     awe.projections.add({ 
       id: id,
       geometry:{ shape:'cube', x:100, y:50, z:10 },
@@ -171,8 +182,8 @@ function onAweReady() {
     }, { poi_id: id });
 
     // show message editor
-    var msg = document.querySelector('#msg');
-    msg.style.visible = 'visible';
+    //var msg = document.querySelector('#msg');
+    //msg.style.visible = 'visible';
   }
 
   window.addEventListener('object_clicked', function(e) {
@@ -190,6 +201,11 @@ function onAweReady() {
   // load session from server
   function loadSession() {
   }
+
+  function randomIntInRange(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
 }
 </script>
 </body>
