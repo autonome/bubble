@@ -10,12 +10,21 @@ const express = require("express");
 
   // Web server
   var app = new express();
+
+  app.use(function(req, res, next) {
+    var host = req.get('Host');
+    if (host.indexOf('apple') != -1 || host.indexOf('google') != -1) {
+      return res.redirect(301, 'http://bubble.local');
+    }
+    return next();
+  });
+
   app.disable('etag');
   app.use('/', express.static('../www'));
   app.listen(httpPort, '0.0.0.0', function() {
     console.log('Web server listening on port ' + httpPort);
   });
-
+  
   // Web socket server
   var wss = new ws.Server({ port: wsPort });
   wss.on('connection', function(conn) {
