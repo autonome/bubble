@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>AWE GEO AR demo</title>
+<title>corner</title>
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
 <meta charset="utf-8"/>
 <style type="text/css">
@@ -18,193 +18,76 @@
     overflow: hidden;
   }
   #add {
-    color: #ffffff;
     position: absolute;
-    background-color: silver;
     margin: 0 auto;
     width: 7rem;
     bottom: 1rem;
     left: 0;
     right: 0;
-    padding: 1rem;
     text-align: center;
+  }
+  #pov {
+    position: absolute;
+    margin: 0 auto;
+    width: 7rem;
+    top: 1rem;
+    right: 1rem;
+    background-color: silver;
+  }
+  #msg {
+    position: absolute;
+    margin: 0 auto;
+    width: 20rem;
+    height: 10rem;
+    top: 1rem;
+    background-color: silver;
+    padding: 1rem;
+    visibility: hidden;
   }
 </style>
 </head>
 <body>
 <div id="container"></div>
-<div id="add">+</div>
+<div id="add">
+  <img src="images/plus.png">
+</div>
+<div id="pov"></div>
+<div id="msg">
+  <textarea>default text</textarea>
+</div>
 <script type="text/javascript" defer src="js/hammer.min.js"></script>
 <script type="text/javascript" defer src="js/awe-loader-min.js"></script>
 <script type="text/javascript">
 window.addEventListener('DOMContentLoaded', function() {
-  document.documentElement.requestFullscreen();
+    var capabilities = location.search.indexOf('desktop') != -1 ?
+          ['gum','webgl'] : ['gum','gyro','webgl'];
+    console.log(capabilities)
   // initialize awe after page loads
-  window.awe.init({
+  awe.init({
     // automatically detect the device type
     device_type: awe.AUTO_DETECT_DEVICE_TYPE,
     // populate some default settings
     settings: {
       container_id: 'container',
-      fps: 30,
+      fps: 5,
       default_camera_position: { x:0, y:0, z:0 },
-      default_lights:[
-        {
-          id: 'point_light',
-          type: 'point',
-          color: 0xFFFFFF
-        },
-      ],
+      default_lights:[{
+        id: 'point_light',
+        type: 'point',
+        color: 0xFFFFFF
+      }],
     },
     ready: function() {
       // load js files based on capability detection then setup the scene if successful
-      awe.util.require([
-        {
-          capabilities: ['gum','gyro','webgl'],
+      awe.util.require([{
+          capabilities: capabilities,
           files: [ 
             ['js/awe-standard-dependencies.js', 'js/awe-standard.js' ], // core dependencies for this app 
             'js/awe-standard-window_resized.js', // window resize handling plugin
             'js/awe-standard-object_clicked.js', // object click/tap handling plugin
             'awe.geo_ar.js', // geo ar plugin
           ],
-          success: function() { 
-            // limit demo to supported devices
-            // NOTE: only Chrome and Firefox has implemented the DeviceOrientation API in a workable way
-            //       so for now we are excluding all others to make sure your first experience is a happy one
-            var device_type = awe.device_type();
-            var browser_unsupported = false;
-            if (device_type != 'android') {
-              browser_unsupported = true;
-            } else if (!navigator.userAgent.match(/chrome|firefox/i)) {
-              browser_unsupported = true;
-            }
-            if (browser_unsupported) {
-              document.body.innerHTML = '<p>This demo currently requires a standards compliant Android browser (e.g. Chrome M33).</p>';
-              return;
-            }
-
-            // setup and paint the scene
-            window.awe.setup_scene();
-    
-            /*
-            // setup some code to handle when an object is clicked/tapped
-            window.addEventListener('object_clicked', function(e) { 
-              var p = awe.projections.view(e.detail.projection_id);
-              awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
-                data:{
-                  animation: {
-                    duration: 10,
-                  },
-                  rotation:{ y: p.rotation.y+180, x: p.rotation.x+180 }
-                },
-                where:{ id:e.detail.projection_id }
-              });
-            }, false);
-            */
-
-            var shapes = ['sphere', 'cube']
-    
-            var addBtn = document.querySelector('#add');
-            var hammertime = new Hammer(addBtn);
-            hammertime.on('tap', function(e) {
-              awe.pois.add({ id:'north', position: { x:0, y:0, z:200 } });
-              awe.projections.add({ 
-                id:'n', 
-                geometry:{ shape:'cube', x:100, y:50, z:50 }, 
-                material:{ 
-                  color:0xFF0000, 
-                },
-              }, { poi_id: 'north' });
-            });
-
-            // add some points of interest (poi) for each of the compass points
-            // and add projections to each of the pois
-            /*
-              awe.pois.add({ id:'north', position: { x:0, y:0, z:200 } });
-              awe.projections.add({ 
-                id:'n', 
-                geometry:{ shape:'cube', x:50, y:50, z:50 }, 
-                rotation:{ x:30, y:30, z:0 },
-                material:{ 
-                  type: 'phong',
-                  color:0xFF0000, 
-                },
-              }, { poi_id: 'north' });
-
-              awe.pois.add({ id:'north_east', position: { x:200, y:0, z:200 } });
-              awe.projections.add({ 
-                id:'ne', 
-                geometry:{ shape:'sphere', radius:10 }, 
-                material:{ 
-                  type: 'phong',
-                  color:0xCCCCCC, 
-                },
-              }, { poi_id: 'north_east' });
-
-              awe.pois.add({ id:'east', position: { x:200, y:0, z:0 } });
-              awe.projections.add({ 
-                id:'e', 
-                geometry:{ shape:'cube', x:50, y:50, z:50 }, 
-                rotation:{ x:30, y:30, z:0 },
-                material:{ 
-                  type: 'phong',
-                  color:0x00FF00, 
-                },
-              }, { poi_id: 'east' });
-
-              awe.pois.add({ id:'south_east', position: { x:200, y:0, z:-200 } });
-              awe.projections.add({ 
-                id:'se', 
-                geometry:{ shape:'sphere', radius:10 }, 
-                material:{ 
-                  type: 'phong',
-                  color:0xCCCCCC, 
-                },
-              }, { poi_id: 'south_east' });
-
-              awe.pois.add({ id:'south', position: { x:0, y:0, z:-200 } });
-              awe.projections.add({ 
-                id:'s', 
-                geometry:{ shape:'cube', x:50, y:50, z:50 }, 
-                rotation:{ x:30, y:30, z:0 },
-                material:{ 
-                  type: 'phong',
-                  color:0xFFFFFF, 
-                },
-              }, { poi_id: 'south' });
-
-              awe.pois.add({ id:'south_west', position: { x:-200, y:0, z:-200 } });
-              awe.projections.add({ 
-                id:'sw', 
-                geometry:{ shape:'sphere', radius:10 }, 
-                material:{ 
-                  type: 'phong',
-                  color:0xCCCCCC, 
-                },
-              }, { poi_id: 'south_west' });
-
-              awe.pois.add({ id:'west', position: { x:-200, y:0, z:0 } });
-              awe.projections.add({ 
-                id:'w', 
-                geometry:{ shape:'cube', x:50, y:50, z:50 }, 
-                rotation:{ x:30, y:30, z:0 },
-                material:{ 
-                  type: 'phong',
-                  color:0x0000FF, 
-                },
-              }, { poi_id: 'west' });
-
-              awe.pois.add({ id:'north_west', position: { x:-200, y:0, z:200 } });
-              awe.projections.add({ 
-                id:'nw', 
-                geometry:{ shape:'sphere', radius:10 }, 
-                material:{ 
-                  type: 'phong',
-                  color:0xCCCCCC, 
-                },
-              }, { poi_id: 'north_west' });
-            */
-          },
+          success: onAweReady,
         },
         { // else create a fallback
           capabilities: [],
@@ -218,6 +101,96 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+function onAweReady() {
+  // limit demo to supported devices
+  // NOTE: only Chrome and Firefox has implemented the DeviceOrientation API in a workable way
+  //       so for now we are excluding all others to make sure your first experience is a happy one
+  var device_type = awe.device_type();
+  var browser_unsupported = false;
+  if (device_type != 'android' && 
+      !navigator.userAgent.match(/chrome|firefox/i)) {
+    document.body.innerHTML = '<p>This demo currently requires a standards compliant Android browser (e.g. Chrome M33).</p>';
+    return;
+  }
+
+  window.addEventListener('devicemotion', function(e) {
+    console.log('motion')
+  }, false);
+
+  // Our own orientation listener
+  var pov = { x: 0, y: 0, z: 0 };
+  window.addEventListener('deviceorientation', function(e) {
+    console.log(orientation, e);
+    var alpha = e.alpha,
+        beta = e.beta,
+        gamma = e.gamma,
+        x = 0,
+        y = 0,
+        z = 0;
+
+    if ((beta > 30 && beta < 150) || // device is generally upright (portrait)
+        (beta < -30 && beta > -150)) { // device is generally upright but inverted (portrait)
+      x = beta+90;
+      y = (alpha+gamma)%360;
+      z = 180;
+    } else { // device is generally not-upright (landscape)
+      if (gamma < 0 && gamma > -90) { // rotation below horizon
+        x = -gamma-90;
+      } else { // rotation above horizon
+        x = 90-gamma;
+      }
+      y = (alpha+gamma+180)%360;
+    }
+
+    var povEl = document.querySelector('#pov');
+    povEl.innerHTML = ['X', Math.round(x), 'Y', Math.round(y)].join(' ');
+    pov = { x: Math.round(x), y: Math.round(y), z: Math.round(z) };
+  });
+
+  // setup and paint the scene
+  awe.setup_scene();
+
+  var addBtn = document.querySelector('#add');
+  var hammertime = new Hammer(addBtn);
+  hammertime.on('tap', newMessage);
+  
+  function newMessage(e) {
+    var povEl = document.querySelector('#pov');
+    var id = 'msg' + Date.now();
+    awe.pois.add({ id: id, position: { x: 0, y: 0, z:200 } });
+    //alert('adding new msg at ' + pov.x + ', ' + pov.y)
+    //awe.pois.add({ id: id, position: { x: pov.x, y: pov.y, z:200 } });
+    //awe.pois.add({ id: id, position: { x: 175, y: 118, z:200 } });
+    awe.projections.add({ 
+      id: id,
+      geometry:{ shape:'cube', x:100, y:50, z:10 },
+      position: { x: 0, y: 0, z: 0 },
+      material:{ color: 0xC0C0C0 },
+      texture: { path: 'images/envelope.png' },
+    }, { poi_id: id });
+
+    // show message editor
+    var msg = document.querySelector('#msg');
+    msg.style.visible = 'visible';
+  }
+
+  window.addEventListener('object_clicked', function(e) {
+    // e.detail.projection_id
+  });
+  
+  // save all poi/projections to json
+  function serializeSession() {
+  }
+
+  // send session to server
+  function saveSession() {
+  }
+
+  // load session from server
+  function loadSession() {
+  }
+}
 </script>
 </body>
 </html>

@@ -37,39 +37,37 @@
 		register: function(plugin_data){
 			// add video stream
 			awe.setup_stream();
-			awe.events.add([
-				{
-					id: 'video_stream',
-					device_types: {
-						android: 1,
-						pc: 1
-					},
-					register: function(handler) {
-						window.addEventListener('gum_ready', handler, false);
-					},
-					unregister: function(handler){
-						window.removeEventListener('gum_ready', handler, false);
-					},
-					handler: function(e) {
-						var video = awe.video_stream();
-						background_video = document.createElement('video');
-						background_video.setAttribute('width', window.innerWidth);
-						background_video.setAttribute('height', window.innerHeight);
-						background_video.setAttribute('autoplay', 'true');
-						background_video.style.position = 'absolute';
-						background_video.style.left = '50%';
-						background_video.style.marginLeft = (-window.innerWidth/2)+'px';
-						background_video.style.top = '0px';
-						background_video.style.zIndex = '-1';
-						container.appendChild(background_video);
-						awe.util.connect_stream_to_src(awe.video_stream().stream, background_video);
-						background_video.addEventListener('play',resize_video, false);
-            setTimeout(function() {
-              resize_video();
-            }, 1000);
-					}
-				}
-			]);
+			awe.events.add([{
+        id: 'video_stream',
+        device_types: {
+          android: 1,
+          pc: 1
+        },
+        register: function(handler) {
+          window.addEventListener('gum_ready', handler, false);
+        },
+        unregister: function(handler){
+          window.removeEventListener('gum_ready', handler, false);
+        },
+        handler: function(e) {
+          var video = awe.video_stream();
+          background_video = document.createElement('video');
+          background_video.setAttribute('width', window.innerWidth);
+          background_video.setAttribute('height', window.innerHeight);
+          background_video.setAttribute('autoplay', 'true');
+          background_video.style.position = 'absolute';
+          background_video.style.left = '50%';
+          background_video.style.marginLeft = (-window.innerWidth/2)+'px';
+          background_video.style.top = '0px';
+          background_video.style.zIndex = '-1';
+          container.appendChild(background_video);
+          awe.util.connect_stream_to_src(awe.video_stream().stream, background_video);
+          background_video.addEventListener('play',resize_video, false);
+          setTimeout(function() {
+            resize_video();
+          }, 1000);
+        }
+		  }]);
 			
 			// toDeg() is a Number object extension courtesy http://www.movable-type.co.uk/scripts/latlong.html 
 			if (typeof Number.prototype.toDeg == 'undefined') {
