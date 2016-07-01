@@ -5,3 +5,4 @@
 *By Katie, Julia, Vladan, Dietrich*
 
 <img src="img/bubble_chat.png">
+<img src="img/bubble_object.jpg">
