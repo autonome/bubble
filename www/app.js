@@ -86,8 +86,9 @@ function onAweReady() {
       y = (alpha+gamma+180)%360;
     }
 
-    var povEl = document.querySelector('#pov');
-    povEl.innerHTML = ['X', Math.round(x), 'Y', Math.round(y)].join(' ');
+    //var povEl = document.querySelector('#pov');
+    //povEl.innerHTML = ['X', Math.round(x), 'Y', Math.round(y)].join(' ');
+
     pov = { x: Math.round(x), y: Math.round(y), z: Math.round(z) };
   });
 
@@ -173,5 +174,4 @@ function onAweReady() {
   function randomIntInRange(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-
 }
